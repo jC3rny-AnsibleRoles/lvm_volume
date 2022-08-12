@@ -1,0 +1,36 @@
+# [ lvm_volume - defaults ]
+
+lvm_packages: [ lvm2, xfsprogs, e2fsprogs ]
+
+lvm_pvs_devices: []
+lvm_lvg_name: ""
+lvm_lvol_replicas: 1
+lvm_lvol_mount_root_folder: "/mnt"
+lvm_lvol_mount_opts: "defaults"
+lvm_lvol_filesystem_fstype: "xfs"
+lvm_lvol_filesystem_opts: ""
+lvm_lvol_prefix: ""
+lvm_lvol_name: ""
+lvm_lvol_suffix: ""
+lvm_lvol_suffix_list:
+  - "{{ lvm_lvol_suffix }}1"
+  - "{{ lvm_lvol_suffix }}2"
+  - "{{ lvm_lvol_suffix }}3"
+  - "{{ lvm_lvol_suffix }}4"
+  - "{{ lvm_lvol_suffix }}5"
+  - "{{ lvm_lvol_suffix }}6"
+  - "{{ lvm_lvol_suffix }}7"
+  - "{{ lvm_lvol_suffix }}8"
+  - "{{ lvm_lvol_suffix }}9"
+lvm_lvol_size: ""
+# example: "100%FREE"
+
+lvm_lvol_parts_of_name: [ "{{ lvm_lvol_prefix }}", "{{ lvm_lvol_name | replace('-','_') }}" ]
+lvm_lvol_full_names_str: "{% if lvm_lvol_suffix != '' %}{% for lvm_lvol_replica in lvm_lvol_suffix_list[:(lvm_lvol_replicas | int)] %}{{ lvm_lvol_parts_of_name | select() | join('__') }}__{{ lvm_lvol_replica }}{% if not loop.last %},{% endif %}{% endfor %}{% else %}{{ lvm_lvol_parts_of_name | select() | join('__') }}{% endif %}"
+lvm_lvol_full_names: "{{ lvm_lvol_full_names_str | split(',') }}"
+lvm_lvol_devices_str: "{% for lvm_lvol_full_name in lvm_lvol_full_names %}/dev/mapper/{{ lvm_lvg_name }}-{{ lvm_lvol_full_name }}{% if not loop.last %},{% endif %}{% endfor %}"
+lvm_lvol_devices: "{{ lvm_lvol_devices_str | split(',') }}"
+lvm_lvol_paths_str: "{% for lvm_lvol_full_name in lvm_lvol_full_names %}{{ lvm_lvol_mount_root_folder | regex_replace('\\/$', '') }}/{{ lvm_lvg_name }}/{{ lvm_lvol_full_name | replace('__','-') }}{% if not loop.last %},{% endif %}{% endfor %}"
+lvm_lvol_paths: "{{ lvm_lvol_paths_str | split(',') }}"
+lvm_lvol_mounts_str: "{% for lvm_lvol_device in lvm_lvol_devices %}{{ lvm_lvol_device }}:{{ lvm_lvol_paths[lookup('ansible.utils.index_of', lvm_lvol_devices, 'eq', lvm_lvol_device)] }}{% if not loop.last %},{% endif %}{% endfor %}"
+lvm_lvol_mounts: "{{ lvm_lvol_mounts_str | split(',') }}"

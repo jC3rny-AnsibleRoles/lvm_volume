@@ -1,0 +1,22 @@
+# [ lvm_volume - tasks/lvm_remove_lvol.yaml ]
+
+- mount:
+    src: "{{ item.split(':')[0] }}"
+    path: "{{ item.split(':')[1] }}"
+    fstype: "{{ lvm_lvol_filesystem_fstype }}"
+    opts: "{{ lvm_lvol_mount_opts }}"
+    state: absent
+  with_items: "{{ lvm_lvol_mounts }}"
+
+- lvol:
+    vg: "{{ lvm_lvg_name }}"
+    lv: "{{ item }}"
+    state: absent
+    force: yes
+  with_items: "{{ lvm_lvol_full_names }}"
+
+- file:
+    path: "{{ item }}"
+    state: absent
+  changed_when: no
+  with_items: "{{ lvm_lvol_paths }}"
