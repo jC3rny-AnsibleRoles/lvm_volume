@@ -1,12 +1,13 @@
 # [ lvm_volume - defaults ]
 
-lvm_packages: [ lvm2, xfsprogs, e2fsprogs ]
-
 lvm_pvs_devices: []
 lvm_lvg_name: ""
 lvm_lvol_replicas: 1
 lvm_lvol_mount_root_folder: "/mnt"
 lvm_lvol_mount_opts: "defaults"
+lvm_lvol_mount_path_owner: "root"
+lvm_lvol_mount_path_group: "root"
+lvm_lvol_mount_path_mode: "0755"
 lvm_lvol_filesystem_fstype: "xfs"
 lvm_lvol_filesystem_opts: ""
 lvm_lvol_prefix: ""

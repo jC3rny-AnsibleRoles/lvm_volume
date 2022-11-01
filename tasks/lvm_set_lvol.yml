@@ -1,10 +1,5 @@
 # [ lvm_volume - tasks/lvm_set_lvol.yaml ]
 
-- package:
-    name: "{{ lvm_packages }}"
-    state: present
-  notify: daemon-reload
-
 - lvg:
     pvs: "{{ lvm_pvs_devices | join(',') }}"
     vg: "{{ lvm_lvg_name }}"
@@ -21,18 +16,31 @@
     fstype: "{{ lvm_lvol_filesystem_fstype }}"
     opts: "{{ lvm_lvol_filesystem_opts }}"
   with_items: "{{ lvm_lvol_devices }}"
+  when: not ansible_check_mode
 
-- file:
-    path: "{{ item }}"
-    recurse: yes
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  changed_when: no
-  with_items: "{{ lvm_lvol_paths }}"
 
-- mount:
+# Set mount directory
+- block:
+  - name: Set mount directory
+    file:
+      path: "{{ item }}"
+      recurse: yes
+      state: directory
+    with_items: "{{ lvm_lvol_paths }}"
+
+  - file:
+      path: "{{ item }}"
+      recurse: no
+      state: directory
+      owner: "{{ lvm_lvol_mount_path_owner }}"
+      group: "{{ lvm_lvol_mount_path_group }}"
+      mode: "{{ lvm_lvol_mount_path_mode }}"
+    with_items: "{{ lvm_lvol_paths }}"
+
+
+# Mount LVM volume
+- name: Mount LVM volume
+  mount:
     src: "{{ item.split(':')[0] }}"
     path: "{{ item.split(':')[1] }}"
     fstype: "{{ lvm_lvol_filesystem_fstype }}"
