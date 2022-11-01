@@ -1,17 +1,17 @@
 # [ lvm_volume - tasks/lvm_set_lvol.yaml ]
 
-- lvg:
+- community.general.lvg:
     pvs: "{{ lvm_pvs_devices | join(',') }}"
     vg: "{{ lvm_lvg_name }}"
 
-- lvol:
+- community.general.lvol:
     vg: "{{ lvm_lvg_name }}"
     lv: "{{ item }}"
     size: "{{ lvm_lvol_size }}"
-    resizefs: yes
+    resizefs: true
   with_items: "{{ lvm_lvol_full_names }}"
 
-- filesystem:
+- community.general.filesystem:
     dev: "{{ item }}"
     fstype: "{{ lvm_lvol_filesystem_fstype }}"
     opts: "{{ lvm_lvol_filesystem_opts }}"
@@ -21,26 +21,26 @@
 
 # Set mount directory
 - block:
-  - name: Set mount directory
-    file:
-      path: "{{ item }}"
-      recurse: yes
-      state: directory
-    with_items: "{{ lvm_lvol_paths }}"
+    - name: Set mount directory
+      ansible.builtin.file:
+        path: "{{ item }}"
+        recurse: true
+        state: directory
+      with_items: "{{ lvm_lvol_paths }}"
 
-  - file:
-      path: "{{ item }}"
-      recurse: no
-      state: directory
-      owner: "{{ lvm_lvol_mount_path_owner }}"
-      group: "{{ lvm_lvol_mount_path_group }}"
-      mode: "{{ lvm_lvol_mount_path_mode }}"
-    with_items: "{{ lvm_lvol_paths }}"
+    - ansible.builtin.file:
+        path: "{{ item }}"
+        recurse: false
+        state: directory
+        owner: "{{ lvm_lvol_mount_path_owner }}"
+        group: "{{ lvm_lvol_mount_path_group }}"
+        mode: "{{ lvm_lvol_mount_path_mode }}"
+      with_items: "{{ lvm_lvol_paths }}"
 
 
 # Mount LVM volume
 - name: Mount LVM volume
-  mount:
+  ansible.posix.mount:
     src: "{{ item.split(':')[0] }}"
     path: "{{ item.split(':')[1] }}"
     fstype: "{{ lvm_lvol_filesystem_fstype }}"

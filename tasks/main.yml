@@ -2,30 +2,30 @@
 
 # Check mandatory variables
 - name: Check mandatory variables
-  assert:
+  ansible.builtin.assert:
     that: lvm_lvol_suffix != ''
     quiet: true
     msg: "Mandatory variables have to be defined (lvol: {{ lvm_lvol_paths_str }})!"
-  run_once: yes
+  run_once: true
   when: (lvm_lvol_replicas | int) > 1
   tags: [ always ]
 
 
 # Preview of LVM volume
 - name: Preview of LVM volume
-  debug:
+  ansible.builtin.debug:
     msg:
       - "lvm_lvol_full_names:      {{ lvm_lvol_full_names }}"
       - "lvm_lvol_size:            {{ lvm_lvol_size }}"
       - "lvm_lvol_devices:         {{ lvm_lvol_devices }}"
       - "lvm_lvol_paths:           {{ lvm_lvol_paths }}"
-  run_once: yes
+  run_once: true
   tags: [ never, get-lvm_lvol_preview ]
 
 
 # Remove LVM volume
 - name: Remove LVM volume
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "roles/{{ role_name }}/tasks/lvm_remove_lvol.yml"
     apply:
       tags: always
@@ -34,7 +34,7 @@
 
 # Set LVM volume
 - name: Set LVM volume
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "roles/{{ role_name }}/tasks/lvm_set_lvol.yml"
     apply:
       tags: always

@@ -1,6 +1,6 @@
 # [ lvm_volume - tasks/lvm_remove_lvol.yaml ]
 
-- mount:
+- ansible.posix.mount:
     src: "{{ item.split(':')[0] }}"
     path: "{{ item.split(':')[1] }}"
     fstype: "{{ lvm_lvol_filesystem_fstype }}"
@@ -8,15 +8,15 @@
     state: absent
   with_items: "{{ lvm_lvol_mounts }}"
 
-- lvol:
+- community.general.lvol:
     vg: "{{ lvm_lvg_name }}"
     lv: "{{ item }}"
     state: absent
-    force: yes
+    force: true
   with_items: "{{ lvm_lvol_full_names }}"
 
-- file:
+- ansible.builtin.file:
     path: "{{ item }}"
     state: absent
-  changed_when: no
+  changed_when: false
   with_items: "{{ lvm_lvol_paths }}"
