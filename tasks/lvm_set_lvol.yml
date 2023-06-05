@@ -20,22 +20,12 @@
 
 
 # Set mount directory
-- block:
-    - name: Set mount directory
-      ansible.builtin.file:
-        path: "{{ item }}"
-        recurse: true
-        state: directory
-      with_items: "{{ lvm_lvol_paths }}"
-
-    - ansible.builtin.file:
-        path: "{{ item }}"
-        recurse: false
-        state: directory
-        owner: "{{ lvm_lvol_mount_path_owner }}"
-        group: "{{ lvm_lvol_mount_path_group }}"
-        mode: "{{ lvm_lvol_mount_path_mode }}"
-      with_items: "{{ lvm_lvol_paths }}"
+- name: Set mount directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    recurse: true
+    state: directory
+  with_items: "{{ lvm_lvol_paths }}"
 
 
 # Mount LVM volume
@@ -47,3 +37,15 @@
     opts: "{{ lvm_lvol_mount_opts }}"
     state: mounted
   with_items: "{{ lvm_lvol_mounts }}"
+
+
+# Set LVM volume permissions
+- name: Set LVM volume permissions
+  ansible.builtin.file:
+    path: "{{ item }}"
+    recurse: false
+    state: directory
+    owner: "{{ lvm_lvol_mount_path_owner }}"
+    group: "{{ lvm_lvol_mount_path_group }}"
+    mode: "{{ lvm_lvol_mount_path_mode }}"
+  with_items: "{{ lvm_lvol_paths }}"
